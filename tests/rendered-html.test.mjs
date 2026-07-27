@@ -71,6 +71,27 @@ test("renders long briefing copy and direct original links", async () => {
   assert.match(html, /기사 전문은 저장하지 않고 공식 원문 링크만 제공합니다/);
 });
 
+test("renders primary views, keyword navigation, and three archive months", async () => {
+  const html = await (await render()).text();
+  assert.match(html, /오늘 브리핑/);
+  assert.match(html, /월별 아카이브/);
+  assert.match(html, /aria-label="키워드별 기사"/);
+  assert.match(html, /삼성전자/);
+  assert.match(html, /SK하이닉스/);
+  assert.match(html, /2026년 7월/);
+  assert.match(html, /2026년 6월/);
+  assert.match(html, /2026년 5월/);
+});
+
+test("uses the light reader shell and responsive navigation hooks", async () => {
+  const html = await (await render()).text();
+  assert.match(html, /class="briefing-workspace app-shell"/);
+  assert.match(html, /class="keyword-nav"/);
+  assert.match(html, /class="primary-tabs view-tabs"/);
+  assert.match(html, /class="briefing-content reader-column"/);
+  assert.match(html, /class="archive-months month-tabs"/);
+});
+
 test("does not expose starter or excluded product features", async () => {
   const html = await (await render()).text();
 
