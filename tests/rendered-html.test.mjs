@@ -57,10 +57,18 @@ test("renders long briefing copy and direct original links", async () => {
 
   assert.match(html, /article-deck/);
   assert.match(html, /article-body/);
+  assert.match(html, /가속기 증설의 핵심은 단기 주문량보다 고객사의 램프업 계획이 메모리 공급 계약으로 이어지는 속도입니다/);
   assert.match(html, /핵심 포인트/);
-  assert.match(html, /원문 기사 보기/);
-  assert.match(html, /target="_blank"/);
-  assert.match(html, /rel="noopener noreferrer"/);
+  assert.match(html, /HBM 출하량과 고객 인증 일정을 함께 확인하세요/);
+  assert.match(html, /class="why-box"/);
+  assert.match(html, /왜 중요한가/);
+  assert.match(
+    html,
+    /<a class="primary-link" href="https:\/\/news\.skhynix\.co\.kr\/" target="_blank" rel="noopener noreferrer">/,
+  );
+  assert.equal((html.match(/class="primary-link"/g) ?? []).length, 4);
+  assert.doesNotMatch(html, /href="javascript:/i);
+  assert.match(html, /기사 전문은 저장하지 않고 공식 원문 링크만 제공합니다/);
 });
 
 test("does not expose starter or excluded product features", async () => {

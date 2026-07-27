@@ -2,7 +2,7 @@ export type Source = {
   name: string;
   type: string;
   trust: string;
-  url: string;
+  url?: string;
 };
 
 export type Preference = "interested" | "not-interested";
@@ -11,9 +11,9 @@ export type Issue = {
   id: string;
   title: string;
   summary: string;
-  deck?: string;
-  body?: string[];
-  takeaways?: string[];
+  deck: string;
+  body: string[];
+  takeaways: string[];
   primaryUrl?: string;
   publishedAt?: string;
   why?: string;
@@ -73,13 +73,10 @@ export function ArticleCard({
     caution: "주의",
     neutral: "중립",
   }[issue.sentiment];
-  const deck = issue.deck ?? issue.summary;
-  const body = issue.body?.length ? issue.body : [issue.why ?? issue.summary];
-  const takeaways = issue.takeaways?.length
-    ? issue.takeaways
-    : [issue.why ?? issue.summary];
-  const primaryCandidate = issue.primaryUrl ?? issue.sources[0]?.url;
-  const primaryUrl = isValidExternalUrl(primaryCandidate) ? primaryCandidate : undefined;
+  const validSources = issue.sources.filter((source) =>
+    isValidExternalUrl(source.url),
+  );
+  const primaryUrl = isValidExternalUrl(issue.primaryUrl) ? issue.primaryUrl : undefined;
 
   return (
     <article
@@ -87,7 +84,7 @@ export function ArticleCard({
     >
       <header className="article-header">
         <time dateTime={issue.publishedAt}>{formatArticleDate(issue.publishedAt)}</time>
-        <span>{issue.sources[0]?.name}</span>
+        <span>{validSources[0]?.name}</span>
       </header>
       <div className="issue-card__meta">
         <span className={`sentiment sentiment--${issue.sentiment}`}>
@@ -97,16 +94,22 @@ export function ArticleCard({
         {issue.storyCount > 1 && <span>관련 기사 {issue.storyCount}건 통합</span>}
       </div>
       <h3>{issue.title}</h3>
-      <p className="article-deck">{deck}</p>
-      {!compact && (
-        <div className="article-body">
-          {body.map((paragraph, index) => <p key={`${issue.id}-body-${index}`}>{paragraph}</p>)}
+      <p className="article-deck">{issue.deck}</p>
+      {issue.why && (
+        <div className="why-box">
+          <strong>왜 중요한가</strong>
+          <p>{issue.why}</p>
         </div>
       )}
-      {!compact && takeaways.length > 0 && (
+      {!compact && (
+        <div className="article-body">
+          {issue.body.map((paragraph, index) => <p key={`${issue.id}-body-${index}`}>{paragraph}</p>)}
+        </div>
+      )}
+      {!compact && issue.takeaways.length > 0 && (
         <section className="takeaways" aria-label="핵심 포인트">
           <strong>핵심 포인트</strong>
-          <ul>{takeaways.map((item, index) => <li key={`${issue.id}-takeaway-${index}`}>{item}</li>)}</ul>
+          <ul>{issue.takeaways.map((item, index) => <li key={`${issue.id}-takeaway-${index}`}>{item}</li>)}</ul>
         </section>
       )}
       {issue.analysis && (
@@ -132,7 +135,7 @@ export function ArticleCard({
         </a>
       )}
       <div className="source-list" aria-label="출처">
-        {issue.sources.map((source) => (
+        {validSources.map((source) => (
           <a
             key={`${source.name}-${source.url}`}
             href={source.url}
