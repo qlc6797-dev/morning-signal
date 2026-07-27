@@ -487,7 +487,7 @@ git commit -m "style: redesign Morning Signal as a light reader"
 
 ---
 
-### Task 5: Documentation, full verification, GitHub, and Sites deployment
+### Task 5: Documentation and full verification
 
 **Files:**
 - Modify: `README.md`
@@ -495,7 +495,7 @@ git commit -m "style: redesign Morning Signal as a light reader"
 
 **Interfaces:**
 - Consumes: completed archive and reader interface
-- Produces: accurate user guidance, verified GitHub main, saved Sites version, private production deployment
+- Produces: accurate user guidance and a fully verified feature branch ready for controller-owned integration and deployment
 
 - [ ] **Step 1: Update user guidance**
 
@@ -540,29 +540,6 @@ git add README.md outputs/사용방법.md
 git commit -m "docs: explain archive and keyword navigation"
 ```
 
-- [ ] **Step 5: Push GitHub main**
+- [ ] **Step 5: Hand off the verified branch**
 
-```powershell
-git push github main
-git ls-remote github refs/heads/main
-```
-
-Expected: remote main SHA equals local `git rev-parse HEAD`.
-
-- [ ] **Step 6: Push and package the exact Sites source**
-
-Obtain a fresh source repository write credential for the existing `project_id`, push `HEAD` to its configured `main`, then run:
-
-```powershell
-sh skills/sites-hosting/scripts/package-site.sh <project> <archive>
-```
-
-Expected archive entries include `dist/server/index.js` and `dist/.openai/hosting.json`.
-
-- [ ] **Step 7: Save and deploy privately**
-
-Save one Sites version using the pushed `HEAD` SHA and archive, deploy it with `deploy_private_site_version`, and poll `get_deployment_status` until `succeeded`.
-
-- [ ] **Step 8: Report the production URL**
-
-Return `https://morning-signal.nexc.chatgpt.site` as the primary deliverable plus the final GitHub commit SHA and test count.
+Record the current feature-branch SHA and final test count in the task report. GitHub main integration, exact-source Sites packaging, and private production deployment are controller-owned finalization steps performed only after the whole-branch review approves the implementation.
