@@ -1,6 +1,17 @@
 const PRIORITY_COMPANIES = new Set(["삼성전자", "SK하이닉스"]);
 const PRIORITY_REGIONS = new Set(["구리", "남양주", "하남", "왕숙"]);
 
+export const KEYWORDS = [
+  "전체",
+  "AI",
+  "반도체",
+  "삼성전자",
+  "SK하이닉스",
+  "부동산",
+  "대출",
+  "구리·남양주·하남·왕숙",
+];
+
 const importanceScore = {
   core: 36,
   important: 22,
@@ -254,6 +265,183 @@ const refreshStories = [
   },
 ];
 
+const archiveStories = [
+  {
+    id: "archive-july-hbm",
+    clusterKey: "archive-july-hbm",
+    publishedAt: "2026-07-18",
+    title: "HBM 공급 계획을 점검하는 7월 샘플 브리핑",
+    summary: "AI 서버용 메모리 수요와 공급 계획을 검토하는 예시 항목입니다.",
+    deck: "AI 메모리 투자 판단을 위한 한 문장 설명",
+    body: [
+      "첫 문단은 사건과 배경을 설명합니다.",
+      "둘째 문단은 삼성전자·SK하이닉스 또는 부동산 판단에 미치는 의미를 설명합니다.",
+    ],
+    takeaways: ["기억할 포인트 1", "기억할 포인트 2"],
+    primaryUrl: "https://news.skhynix.co.kr/",
+    importance: "core",
+    sentiment: "positive",
+    relevance: 97,
+    topic: "반도체",
+    companies: ["삼성전자", "SK하이닉스", "엔비디아"],
+    regions: [],
+    impact: "직접 영향",
+    sources: [
+      {
+        name: "SK하이닉스",
+        type: "기업 공식자료",
+        trust: "높음",
+        url: "https://news.skhynix.co.kr/",
+      },
+    ],
+  },
+  {
+    id: "archive-july-wangsuk",
+    clusterKey: "archive-july-wangsuk",
+    publishedAt: "2026-07-09",
+    title: "왕숙 교통 계획을 검토하는 7월 샘플 브리핑",
+    summary: "경기 동부 공급 및 교통 계획을 검토하는 예시 항목입니다.",
+    deck: "관심 지역 실거주 판단을 위한 한 문장 설명",
+    body: [
+      "첫 문단은 사건과 배경을 설명합니다.",
+      "둘째 문단은 삼성전자·SK하이닉스 또는 부동산 판단에 미치는 의미를 설명합니다.",
+    ],
+    takeaways: ["기억할 포인트 1", "기억할 포인트 2"],
+    primaryUrl: "https://www.molit.go.kr/",
+    importance: "important",
+    sentiment: "neutral",
+    relevance: 90,
+    topic: "관심 지역",
+    companies: [],
+    regions: ["남양주", "왕숙", "구리", "하남"],
+    impact: "실거주 영향",
+    sources: [
+      {
+        name: "국토교통부",
+        type: "정부·공공기관",
+        trust: "높음",
+        url: "https://www.molit.go.kr/",
+      },
+    ],
+  },
+  {
+    id: "archive-june-samsung",
+    clusterKey: "archive-june-samsung",
+    publishedAt: "2026-06-18",
+    title: "삼성전자 메모리 전략을 검토하는 6월 샘플 브리핑",
+    summary: "AI 메모리 투자 판단에 활용할 수 있는 예시 항목입니다.",
+    deck: "AI 메모리 투자 판단을 위한 한 문장 설명",
+    body: [
+      "첫 문단은 사건과 배경을 설명합니다.",
+      "둘째 문단은 삼성전자·SK하이닉스 또는 부동산 판단에 미치는 의미를 설명합니다.",
+    ],
+    takeaways: ["기억할 포인트 1", "기억할 포인트 2"],
+    primaryUrl: "https://www.samsung.com/sec/",
+    importance: "core",
+    sentiment: "positive",
+    relevance: 96,
+    topic: "반도체",
+    companies: ["삼성전자", "SK하이닉스"],
+    regions: [],
+    impact: "직접 영향",
+    sources: [
+      {
+        name: "삼성전자",
+        type: "기업 공식자료",
+        trust: "높음",
+        url: "https://www.samsung.com/sec/",
+      },
+    ],
+  },
+  {
+    id: "archive-june-loan",
+    clusterKey: "archive-june-loan",
+    publishedAt: "2026-06-04",
+    title: "주택담보대출 한도를 검토하는 6월 샘플 브리핑",
+    summary: "DSR과 금리 조건을 확인하는 예시 항목입니다.",
+    deck: "대출 가능액 판단을 위한 한 문장 설명",
+    body: [
+      "첫 문단은 사건과 배경을 설명합니다.",
+      "둘째 문단은 삼성전자·SK하이닉스 또는 부동산 판단에 미치는 의미를 설명합니다.",
+    ],
+    takeaways: ["기억할 포인트 1", "기억할 포인트 2"],
+    primaryUrl: "https://www.fsc.go.kr/",
+    importance: "important",
+    sentiment: "caution",
+    relevance: 89,
+    topic: "부동산·대출",
+    companies: [],
+    regions: ["서울", "구리", "남양주"],
+    impact: "대출 영향",
+    sources: [
+      {
+        name: "금융위원회",
+        type: "정부·공공기관",
+        trust: "높음",
+        url: "https://www.fsc.go.kr/",
+      },
+    ],
+  },
+  {
+    id: "archive-may-ai",
+    clusterKey: "archive-may-ai",
+    publishedAt: "2026-05-22",
+    title: "클라우드 AI 투자 흐름을 검토하는 5월 샘플 브리핑",
+    summary: "AI 인프라 투자 흐름을 비교하는 예시 항목입니다.",
+    deck: "AI 수요 방향 판단을 위한 한 문장 설명",
+    body: [
+      "첫 문단은 사건과 배경을 설명합니다.",
+      "둘째 문단은 삼성전자·SK하이닉스 또는 부동산 판단에 미치는 의미를 설명합니다.",
+    ],
+    takeaways: ["기억할 포인트 1", "기억할 포인트 2"],
+    primaryUrl: "https://www.microsoft.com/en-us/investor",
+    importance: "important",
+    sentiment: "positive",
+    relevance: 87,
+    topic: "AI",
+    companies: ["Microsoft", "Google", "Amazon"],
+    regions: [],
+    impact: "간접 영향",
+    sources: [
+      {
+        name: "Microsoft",
+        type: "기업 공식자료",
+        trust: "높음",
+        url: "https://www.microsoft.com/en-us/investor",
+      },
+    ],
+  },
+  {
+    id: "archive-may-hanam",
+    clusterKey: "archive-may-hanam",
+    publishedAt: "2026-05-11",
+    title: "하남 주거 공급을 검토하는 5월 샘플 브리핑",
+    summary: "관심 지역 공급 일정과 실수요 조건을 점검하는 예시 항목입니다.",
+    deck: "관심 지역 공급 판단을 위한 한 문장 설명",
+    body: [
+      "첫 문단은 사건과 배경을 설명합니다.",
+      "둘째 문단은 삼성전자·SK하이닉스 또는 부동산 판단에 미치는 의미를 설명합니다.",
+    ],
+    takeaways: ["기억할 포인트 1", "기억할 포인트 2"],
+    primaryUrl: "https://www.lh.or.kr/",
+    importance: "important",
+    sentiment: "neutral",
+    relevance: 86,
+    topic: "관심 지역",
+    companies: [],
+    regions: ["하남", "구리"],
+    impact: "실거주 영향",
+    sources: [
+      {
+        name: "LH",
+        type: "공공기관",
+        trust: "높음",
+        url: "https://www.lh.or.kr/",
+      },
+    ],
+  },
+];
+
 function uniqueBy(items, keyOf) {
   return [...new Map(items.map((item) => [keyOf(item), item])).values()];
 }
@@ -338,6 +526,63 @@ export function rankIssues(issues, preferences = {}) {
   );
 }
 
+export function matchesKeyword(issue, keyword) {
+  if (keyword === "전체") return true;
+  if (keyword === "AI") {
+    return (
+      issue.topic === "AI" ||
+      issue.companies.some((name) =>
+        ["엔비디아", "Microsoft", "Google", "Amazon"].includes(name),
+      )
+    );
+  }
+  if (keyword === "반도체") {
+    return (
+      issue.topic === "반도체" ||
+      issue.companies.some((name) =>
+        ["삼성전자", "SK하이닉스", "TSMC", "마이크론", "엔비디아"].includes(
+          name,
+        ),
+      )
+    );
+  }
+  if (keyword === "부동산") {
+    return issue.topic === "부동산·대출" || issue.topic === "관심 지역";
+  }
+  if (keyword === "대출") {
+    return (
+      issue.topic === "부동산·대출" &&
+      /대출|DSR|금리/.test(`${issue.title} ${issue.summary}`)
+    );
+  }
+  if (keyword === "구리·남양주·하남·왕숙") {
+    return issue.regions.some((region) =>
+      ["구리", "남양주", "하남", "왕숙"].includes(region),
+    );
+  }
+  return issue.companies.includes(keyword);
+}
+
+export function filterIssues(issues, { month = null, keyword = "전체" } = {}) {
+  return issues.filter(
+    (issue) =>
+      (!month || issue.publishedAt.startsWith(month)) &&
+      matchesKeyword(issue, keyword),
+  );
+}
+
+export function getArchiveMonths(issues) {
+  return [...new Set(issues.map((issue) => issue.publishedAt.slice(0, 7)))]
+    .sort()
+    .reverse();
+}
+
+export function getKeywordCounts(issues) {
+  return Object.fromEntries(
+    KEYWORDS.map((keyword) => [keyword, filterIssues(issues, { keyword }).length]),
+  );
+}
+
 export function getMorningBriefing() {
   const issues = rankIssues(clusterStories(morningStories), {});
 
@@ -365,4 +610,8 @@ export function getMorningBriefing() {
 
 export function getRefreshIssues() {
   return rankIssues(clusterStories(refreshStories), {});
+}
+
+export function getArchiveIssues() {
+  return rankIssues(clusterStories(archiveStories), {});
 }

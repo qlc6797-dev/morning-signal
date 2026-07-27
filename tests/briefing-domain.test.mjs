@@ -3,11 +3,42 @@ import test from "node:test";
 
 import {
   clusterStories,
+  filterIssues,
+  getArchiveIssues,
+  getArchiveMonths,
+  getKeywordCounts,
   getMorningBriefing,
   getRefreshIssues,
   rankIssues,
   scoreIssue,
 } from "../app/lib/briefing.mjs";
+
+test("groups archive months newest first", () => {
+  assert.deepEqual(getArchiveMonths(getArchiveIssues()), [
+    "2026-07",
+    "2026-06",
+    "2026-05",
+  ]);
+});
+
+test("combines month and configured keyword filters", () => {
+  const result = filterIssues(getArchiveIssues(), {
+    month: "2026-06",
+    keyword: "삼성전자",
+  });
+
+  assert.ok(result.length > 0);
+  assert.ok(result.every((issue) => issue.publishedAt.startsWith("2026-06")));
+  assert.ok(result.every((issue) => issue.companies.includes("삼성전자")));
+});
+
+test("counts articles for every keyword navigation item", () => {
+  const counts = getKeywordCounts(getArchiveIssues());
+
+  assert.equal(counts["전체"], getArchiveIssues().length);
+  assert.ok(counts["AI"] > 0);
+  assert.ok(counts["구리·남양주·하남·왕숙"] > 0);
+});
 
 test("clusters duplicate stories into one issue without losing source counts", () => {
   const clustered = clusterStories([
