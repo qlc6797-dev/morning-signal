@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b1720">
+  <meta name="description" content="AI·반도체 투자와 부동산 정책을 한 번에 보는 개인 아침 뉴스 브리핑">
+  <title>Morning Signal · 개인 뉴스 브리핑</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="ambient ambient--one"></div>
+  <div class="ambient ambient--two"></div>
+
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="Morning Signal 홈">
+      <span class="brand-mark">MS</span>
+      <span>
+        <strong>Morning Signal</strong>
+        <small>개인 뉴스 브리핑</small>
+      </span>
+    </a>
+    <button id="refresh-button" class="refresh-button" type="button">
+      <span aria-hidden="true">↻</span> 최신 뉴스 반영
+    </button>
+  </header>
+
+  <main class="page-shell">
+    <section class="hero" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">DAILY INTELLIGENCE</p>
+        <h1 id="page-title">중요한 신호만,<br>아침에 한 번.</h1>
+        <p class="hero__description">AI·반도체 투자와 부동산 정책에서 오늘 판단에 필요한 변화만 압축했습니다.</p>
+      </div>
+      <div class="hero__meta">
+        <span id="briefing-date" class="hero__date">오늘</span>
+        <div class="meta-line"><span id="mode-pill" class="mode-pill">준비 중</span></div>
+        <p id="mode-message">뉴스 소스를 확인하고 있습니다.</p>
+        <span id="generated-time"></span>
+        <span id="updated-time"></span>
+      </div>
+    </section>
+
+    <div id="error-box" class="error-box" role="alert" hidden></div>
+
+    <section id="loading" class="loading-panel" aria-live="polite">
+      <div class="loading-pulse"></div>
+      <p>오늘의 뉴스 신호를 정리하고 있습니다.</p>
+    </section>
+
+    <div id="app-content" hidden>
+      <section class="content-section conclusion-section" aria-labelledby="conclusion-title">
+        <div class="section-heading section-heading--light">
+          <div>
+            <p class="eyebrow">30-SECOND VIEW</p>
+            <h2 id="conclusion-title">오늘의 핵심 결론 3개</h2>
+          </div>
+        </div>
+        <ol id="conclusions" class="conclusion-grid"></ol>
+      </section>
+
+      <div class="desktop-grid">
+        <div class="primary-column">
+          <section class="content-section" aria-labelledby="top-stories-title">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">MUST READ</p>
+                <h2 id="top-stories-title">오늘 꼭 볼 뉴스</h2>
+              </div>
+              <span class="section-note">중요도순</span>
+            </div>
+            <div id="top-stories" class="card-stack"></div>
+          </section>
+
+          <section id="new-stories-section" class="content-section new-stories-section" aria-labelledby="new-stories-title" hidden>
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">UPDATED</p>
+                <h2 id="new-stories-title">새로 추가된 뉴스</h2>
+              </div>
+            </div>
+            <div id="new-stories" class="card-stack"></div>
+          </section>
+        </div>
+
+        <aside class="secondary-column">
+          <div id="topic-grid" class="topic-grid"></div>
+
+          <details id="reference-section" class="reference-section" hidden>
+            <summary>
+              <span>
+                <small>REFERENCE</small>
+                참고 뉴스
+              </span>
+              <span id="reference-count" class="story-count"></span>
+            </summary>
+            <div id="reference-stories" class="card-stack reference-stack"></div>
+          </details>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <footer class="site-footer">
+    <p>기사 전문을 저장하지 않고 원문 링크만 제공합니다. 투자·부동산 판단의 참고 자료로 사용하세요.</p>
+  </footer>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
