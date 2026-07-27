@@ -2,33 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { getRefreshIssues, rankIssues } from "../lib/briefing.mjs";
-
-type Source = {
-  name: string;
-  type: string;
-  trust: string;
-  url: string;
-};
-
-type Issue = {
-  id: string;
-  title: string;
-  summary: string;
-  why?: string;
-  analysis?: {
-    positive: string;
-    negative: string;
-    watch: string;
-  };
-  importance: "core" | "important" | "reference";
-  sentiment: "positive" | "caution" | "neutral";
-  topic: string;
-  companies: string[];
-  regions: string[];
-  impact?: string;
-  sources: Source[];
-  storyCount: number;
-};
+import { ArticleCard, type Issue, type Preference } from "./ArticleCard";
 
 type Briefing = {
   date: string;
@@ -38,7 +12,6 @@ type Briefing = {
   issues: Issue[];
 };
 
-type Preference = "interested" | "not-interested";
 type PreferenceMap = Record<string, Preference>;
 
 const PREFERENCE_KEY = "news-briefing-preferences-v1";
@@ -59,91 +32,6 @@ function matchesFilter(issue: Issue, filter: string) {
   }
   return issue.regions.some((region) =>
     ["구리", "남양주", "하남", "왕숙"].includes(region),
-  );
-}
-
-function IssueCard({
-  issue,
-  preference,
-  onPreference,
-}: {
-  issue: Issue;
-  preference?: Preference;
-  onPreference: (id: string, value: Preference) => void;
-}) {
-  const sentimentLabel = {
-    positive: "긍정",
-    caution: "주의",
-    neutral: "중립",
-  }[issue.sentiment];
-
-  return (
-    <article className={`issue-card issue-card--${issue.importance}`}>
-      <div className="issue-card__meta">
-        <span className={`sentiment sentiment--${issue.sentiment}`}>
-          {sentimentLabel}
-        </span>
-        <span>{issue.impact ?? "흐름 참고"}</span>
-        {issue.storyCount > 1 && <span>관련 기사 {issue.storyCount}건 통합</span>}
-      </div>
-      <h3>{issue.title}</h3>
-      <p className="issue-card__summary">{issue.summary}</p>
-      {issue.why && (
-        <div className="why-box">
-          <strong>왜 중요한가</strong>
-          <p>{issue.why}</p>
-        </div>
-      )}
-      {issue.analysis && (
-        <details className="analysis">
-          <summary>상세 분석 펼치기</summary>
-          <div className="analysis__grid">
-            <p><strong>긍정 시나리오</strong>{issue.analysis.positive}</p>
-            <p><strong>주의 시나리오</strong>{issue.analysis.negative}</p>
-            <p><strong>앞으로 볼 지표</strong>{issue.analysis.watch}</p>
-          </div>
-        </details>
-      )}
-      {(issue.companies.length > 0 || issue.regions.length > 0) && (
-        <div className="tags" aria-label="관련 종목과 지역">
-          {[...issue.companies, ...issue.regions].map((tag) => (
-            <span key={tag}>{tag}</span>
-          ))}
-        </div>
-      )}
-      <div className="source-list" aria-label="출처">
-        {issue.sources.map((source) => (
-          <a
-            key={`${source.name}-${source.url}`}
-            href={source.url}
-            target="_blank"
-            rel="noreferrer"
-          >
-            <span>{source.type}</span>
-            <strong>{source.name}</strong>
-            <small>{`신뢰도 ${source.trust}`}</small>
-          </a>
-        ))}
-      </div>
-      <div className="feedback" aria-label="추천 반응">
-        <button
-          type="button"
-          className={preference === "interested" ? "is-selected" : ""}
-          aria-pressed={preference === "interested"}
-          onClick={() => onPreference(issue.id, "interested")}
-        >
-          관심 있음
-        </button>
-        <button
-          type="button"
-          className={preference === "not-interested" ? "is-selected" : ""}
-          aria-pressed={preference === "not-interested"}
-          onClick={() => onPreference(issue.id, "not-interested")}
-        >
-          관심 없음
-        </button>
-      </div>
-    </article>
   );
 }
 
@@ -272,7 +160,7 @@ export default function BriefingApp({
             </div>
             <div className="issue-stack">
               {coreIssues.length ? coreIssues.map((issue) => (
-                <IssueCard
+                <ArticleCard
                   key={issue.id}
                   issue={issue}
                   preference={preferences[issue.id]}
@@ -289,7 +177,7 @@ export default function BriefingApp({
               {updates.length ? (
                 <div className="issue-stack">
                   {updates.map((issue) => (
-                    <IssueCard
+                    <ArticleCard
                       key={issue.id}
                       issue={issue}
                       preference={preferences[issue.id]}
@@ -324,11 +212,12 @@ export default function BriefingApp({
               </summary>
               <div className="issue-stack">
                 {referenceIssues.map((issue) => (
-                  <IssueCard
+                  <ArticleCard
                     key={issue.id}
                     issue={issue}
                     preference={preferences[issue.id]}
                     onPreference={updatePreference}
+                    compact
                   />
                 ))}
               </div>

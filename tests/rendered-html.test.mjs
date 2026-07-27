@@ -52,6 +52,17 @@ test("renders trustworthy sources and separates the fixed edition from updates",
   assert.match(html, /관심 없음/);
 });
 
+test("renders long briefing copy and direct original links", async () => {
+  const html = await (await render()).text();
+
+  assert.match(html, /article-deck/);
+  assert.match(html, /article-body/);
+  assert.match(html, /핵심 포인트/);
+  assert.match(html, /원문 기사 보기/);
+  assert.match(html, /target="_blank"/);
+  assert.match(html, /rel="noopener noreferrer"/);
+});
+
 test("does not expose starter or excluded product features", async () => {
   const html = await (await render()).text();
 
