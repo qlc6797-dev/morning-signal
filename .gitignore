@@ -149,3 +149,4 @@ vite.config.ts.timestamp-*
 /outputs/*
 !/outputs/사용방법.md
 /work/
+/.worktrees/
