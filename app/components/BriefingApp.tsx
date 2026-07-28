@@ -12,6 +12,7 @@ import {
 } from "../lib/briefing.mjs";
 import { ArticleCard, type Issue, type Preference } from "./ArticleCard";
 import { KeywordNavigation } from "./KeywordNavigation";
+import { SemiconductorNewsFeed } from "./SemiconductorNewsFeed";
 
 type Briefing = {
   date: string;
@@ -35,9 +36,11 @@ export default function BriefingApp({
   initialBriefing: Briefing;
 }) {
   const [activeView, setActiveView] = useState<"today" | "archive">("today");
-  const [activeKeyword, setActiveKeyword] = useState("전체");
+  const [activeKeyword, setActiveKeyword] = useState("반도체");
   const [preferences, setPreferences] = useState<PreferenceMap>({});
   const [updates, setUpdates] = useState<Issue[]>([]);
+  const [liveRefreshToken, setLiveRefreshToken] = useState(0);
+  const [liveArticleCount, setLiveArticleCount] = useState(0);
   const todayHeadingRef = useRef<HTMLHeadingElement>(null);
   const archiveHeadingRef = useRef<HTMLHeadingElement>(null);
   const shouldFocusHeading = useRef(false);
@@ -75,10 +78,11 @@ export default function BriefingApp({
     () => filterIssues(archiveIssues, { month: activeMonth, keyword: activeKeyword }) as Issue[],
     [activeKeyword, activeMonth, archiveIssues],
   );
-  const keywordCounts = useMemo(
-    () => getKeywordCounts(activeView === "today" ? ranked : archiveMonthIssues),
-    [activeView, archiveMonthIssues, ranked],
-  );
+  const keywordCounts = useMemo(() => {
+    const counts = getKeywordCounts(activeView === "today" ? ranked : archiveMonthIssues);
+    if (activeView === "today") counts["반도체"] = liveArticleCount;
+    return counts;
+  }, [activeView, archiveMonthIssues, liveArticleCount, ranked]);
 
   useEffect(() => {
     if (shouldFocusHeading.current) {
@@ -122,6 +126,7 @@ export default function BriefingApp({
   }
 
   function refreshBriefing() {
+    setLiveRefreshToken((value) => value + 1);
     setUpdates(getRefreshIssues() as Issue[]);
     document.getElementById("updates")?.scrollIntoView({
       behavior: "smooth",
@@ -204,6 +209,13 @@ export default function BriefingApp({
 
             <section id="today-panel" role="tabpanel" aria-labelledby="today-tab" hidden={activeView !== "today"}>
                 <h2 ref={todayHeadingRef} tabIndex={-1}>오늘 브리핑</h2>
+                {activeKeyword === "반도체" ? (
+                  <SemiconductorNewsFeed
+                    refreshToken={liveRefreshToken}
+                    onCountChange={setLiveArticleCount}
+                  />
+                ) : (
+                  <>
                 <section className="conclusions" aria-labelledby="conclusion-title">
                   <div className="section-heading section-heading--light">
                     <p className="eyebrow">30-SECOND VIEW</p>
@@ -292,6 +304,8 @@ export default function BriefingApp({
                     </details>
                   </aside>
                 </div>
+                  </>
+                )}
             </section>
             <section id="archive-panel" role="tabpanel" aria-labelledby="archive-tab" hidden={activeView !== "archive"}>
                 <div className="section-heading">

@@ -22,7 +22,7 @@ async function render() {
   );
 }
 
-test("server-renders the morning briefing hierarchy and priority topics", async () => {
+test("server-renders the live semiconductor reader and navigation", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
@@ -30,43 +30,26 @@ test("server-renders the morning briefing hierarchy and priority topics", async 
   const html = await response.text();
   assert.match(html, /<html[^>]*lang="ko"/i);
   assert.match(html, /<title>Morning Signal/);
-  assert.match(html, /오늘의 핵심 결론 3개/);
-  assert.equal((html.match(/data-conclusion=/g) ?? []).length, 3);
-  assert.match(html, /오늘 꼭 볼 뉴스/);
-  assert.match(html, /삼성전자·SK하이닉스/);
-  assert.match(html, /부동산·대출/);
+  assert.match(html, /당일 반도체 뉴스/);
+  assert.match(html, /기사 최대 30개/);
+  assert.match(html, /삼성전자/);
+  assert.match(html, /SK하이닉스/);
+  assert.match(html, /부동산/);
   assert.match(html, /구리·남양주·하남·왕숙/);
-  assert.match(html, /참고 뉴스/);
 });
 
-test("renders trustworthy sources and separates the fixed edition from updates", async () => {
+test("renders refresh controls and avoids clustered live-news language", async () => {
   const html = await (await render()).text();
 
   assert.match(html, /아침판 고정/);
   assert.match(html, /최신 뉴스 반영하기/);
-  assert.match(html, /새로 추가된 주요 뉴스/);
-  assert.match(html, /정부·공공기관/);
-  assert.match(html, /기업 공식자료/);
-  assert.match(html, /신뢰도 높음/);
-  assert.match(html, /관심 있음/);
-  assert.match(html, /관심 없음/);
+  assert.match(html, /1시간마다 자동 업데이트/);
+  assert.doesNotMatch(html, /관련 기사 [^<]*건 통합/);
 });
 
-test("renders long briefing copy and direct original links", async () => {
+test("keeps the original-link and copyright disclaimer visible", async () => {
   const html = await (await render()).text();
 
-  assert.match(html, /article-deck/);
-  assert.match(html, /article-body/);
-  assert.match(html, /가속기 증설의 핵심은 단기 주문량보다 고객사의 램프업 계획이 메모리 공급 계약으로 이어지는 속도입니다/);
-  assert.match(html, /핵심 포인트/);
-  assert.match(html, /HBM 출하량과 고객 인증 일정을 함께 확인하세요/);
-  assert.match(html, /class="why-box"/);
-  assert.match(html, /왜 중요한가/);
-  assert.match(
-    html,
-    /<a class="primary-link" href="https:\/\/news\.skhynix\.co\.kr\/" target="_blank" rel="noopener noreferrer">/,
-  );
-  assert.equal((html.match(/class="primary-link"/g) ?? []).length, 4);
   assert.doesNotMatch(html, /href="javascript:/i);
   assert.match(html, /기사 전문은 저장하지 않고 공식 원문 링크만 제공합니다/);
 });
@@ -90,6 +73,17 @@ test("uses the light reader shell and responsive navigation hooks", async () => 
   assert.match(html, /class="primary-tabs view-tabs"/);
   assert.match(html, /class="briefing-content reader-column"/);
   assert.match(html, /class="archive-months month-tabs"/);
+});
+
+test("renders the hourly article-by-article semiconductor feed shell", async () => {
+  const html = await (await render()).text();
+
+  assert.match(html, /당일 반도체 뉴스/);
+  assert.match(html, /당일 기사 최대 30개/);
+  assert.match(html, /1시간마다 자동 업데이트/);
+  assert.match(html, /data-live-feed="semiconductor"/);
+  assert.match(html, /aria-live="polite"/);
+  assert.match(html, /aria-pressed="true"[^>]*><span>반도체<\/span>/);
 });
 
 test("does not expose starter or excluded product features", async () => {
