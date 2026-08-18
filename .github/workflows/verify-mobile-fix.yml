@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - agent/fix-mobile-news-feed
+  pull_request:
+    branches:
+      - main
 
 jobs:
   test:
