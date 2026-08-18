@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   clusterStories,
   filterIssues,
+  formatBriefingDate,
   getArchiveIssues,
   getArchiveMonths,
   getKeywordCounts,
@@ -12,6 +13,10 @@ import {
   rankIssues,
   scoreIssue,
 } from "../app/lib/briefing.mjs";
+
+test("formats briefing dates in Korea time so server and mobile hydrate identically", () => {
+  assert.equal(formatBriefingDate("2026-08-18"), "2026년 8월 18일 화");
+});
 
 test("groups archive months newest first", () => {
   assert.deepEqual(getArchiveMonths(getArchiveIssues()), [
