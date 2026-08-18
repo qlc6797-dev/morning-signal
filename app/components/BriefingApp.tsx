@@ -10,9 +10,13 @@ import {
   getRefreshIssues,
   rankIssues,
 } from "../lib/briefing.mjs";
+import { formatBriefingDate } from "../lib/date.mjs";
 import { ArticleCard, type Issue, type Preference } from "./ArticleCard";
 import { KeywordNavigation } from "./KeywordNavigation";
-import { SemiconductorNewsFeed } from "./SemiconductorNewsFeed";
+import {
+  SemiconductorNewsFeed,
+  type SemiconductorFeed,
+} from "./SemiconductorNewsFeed";
 
 type Briefing = {
   date: string;
@@ -32,15 +36,19 @@ function formatArchiveMonth(month: string) {
 }
 export default function BriefingApp({
   initialBriefing,
+  initialSemiconductorFeed,
 }: {
   initialBriefing: Briefing;
+  initialSemiconductorFeed: SemiconductorFeed;
 }) {
   const [activeView, setActiveView] = useState<"today" | "archive">("today");
   const [activeKeyword, setActiveKeyword] = useState("반도체");
   const [preferences, setPreferences] = useState<PreferenceMap>({});
   const [updates, setUpdates] = useState<Issue[]>([]);
   const [liveRefreshToken, setLiveRefreshToken] = useState(0);
-  const [liveArticleCount, setLiveArticleCount] = useState(0);
+  const [liveArticleCount, setLiveArticleCount] = useState(
+    initialSemiconductorFeed.articles.length,
+  );
   const todayHeadingRef = useRef<HTMLHeadingElement>(null);
   const archiveHeadingRef = useRef<HTMLHeadingElement>(null);
   const shouldFocusHeading = useRef(false);
@@ -102,16 +110,16 @@ export default function BriefingApp({
   }
 
   function handlePrimaryTabKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
-    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
 
     event.preventDefault();
-    const nextView = event.key === 'Home'
-      ? 'today'
-      : event.key === 'End'
-        ? 'archive'
-        : activeView === 'today'
-          ? 'archive'
-          : 'today';
+    const nextView = event.key === "Home"
+      ? "today"
+      : event.key === "End"
+        ? "archive"
+        : activeView === "today"
+          ? "archive"
+          : "today";
     selectView(nextView);
   }
 
@@ -134,12 +142,7 @@ export default function BriefingApp({
     });
   }
 
-  const formattedDate = new Intl.DateTimeFormat("ko-KR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    weekday: "short",
-  }).format(new Date(`${initialBriefing.date}T00:00:00+09:00`));
+  const formattedDate = formatBriefingDate(initialBriefing.date);
 
   return (
     <main>
@@ -208,143 +211,144 @@ export default function BriefingApp({
             </div>
 
             <section id="today-panel" role="tabpanel" aria-labelledby="today-tab" hidden={activeView !== "today"}>
-                <h2 ref={todayHeadingRef} tabIndex={-1}>오늘 브리핑</h2>
-                {activeKeyword === "반도체" ? (
-                  <SemiconductorNewsFeed
-                    refreshToken={liveRefreshToken}
-                    onCountChange={setLiveArticleCount}
-                  />
-                ) : (
-                  <>
-                <section className="conclusions" aria-labelledby="conclusion-title">
-                  <div className="section-heading section-heading--light">
-                    <p className="eyebrow">30-SECOND VIEW</p>
-                    <h2 id="conclusion-title">오늘의 핵심 결론 3개</h2>
-                  </div>
-                  <ol>
-                    {initialBriefing.conclusions.map((conclusion, index) => (
-                      <li key={conclusion.topic} data-conclusion={index + 1}>
-                        <span>0{index + 1}</span>
-                        <strong>{conclusion.topic}</strong>
-                        <p>{conclusion.text}</p>
-                      </li>
-                    ))}
-                  </ol>
-                </section>
-
-                <div className="content-grid">
-                  <section className="main-column" aria-labelledby="must-read-title">
-                    <div className="section-heading">
-                      <div><p className="eyebrow">MUST READ</p><h2 id="must-read-title">오늘 꼭 볼 뉴스</h2></div>
-                      <span>{activeKeyword} · 중요도순 · {coreIssues.length}개</span>
+              <h2 ref={todayHeadingRef} tabIndex={-1}>오늘 브리핑</h2>
+              {activeKeyword === "반도체" ? (
+                <SemiconductorNewsFeed
+                  refreshToken={liveRefreshToken}
+                  onCountChange={setLiveArticleCount}
+                  initialFeed={initialSemiconductorFeed}
+                />
+              ) : (
+                <>
+                  <section className="conclusions" aria-labelledby="conclusion-title">
+                    <div className="section-heading section-heading--light">
+                      <p className="eyebrow">30-SECOND VIEW</p>
+                      <h2 id="conclusion-title">오늘의 핵심 결론 3개</h2>
                     </div>
-                    <div className="issue-stack">
-                      {coreIssues.length ? coreIssues.map((issue) => (
-                        <ArticleCard
-                          key={issue.id}
-                          issue={issue}
-                          preference={preferences[issue.id]}
-                          onPreference={updatePreference}
-                        />
-                      )) : <p className="empty-state">이 키워드에 해당하는 핵심 뉴스가 없습니다.</p>}
-                    </div>
-
-                    <section id="updates" className="updates" aria-labelledby="updates-title">
-                      <div className="section-heading">
-                        <div><p className="eyebrow">MANUAL UPDATE</p><h2 id="updates-title">새로 추가된 주요 뉴스</h2></div>
-                        <span>{updates.length ? `${updates.length}개 추가` : "아침판과 분리"}</span>
-                      </div>
-                      {updates.length ? (
-                        <div className="issue-stack">
-                          {updates.map((issue) => (
-                            <ArticleCard
-                              key={issue.id}
-                              issue={issue}
-                              preference={preferences[issue.id]}
-                              onPreference={updatePreference}
-                            />
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="update-placeholder">
-                          아침 브리핑은 그대로 유지됩니다. 상단의 ‘최신 뉴스 반영하기’를 누르면 이후 이슈만 여기에 추가됩니다.
-                        </div>
-                      )}
-                    </section>
+                    <ol>
+                      {initialBriefing.conclusions.map((conclusion, index) => (
+                        <li key={conclusion.topic} data-conclusion={index + 1}>
+                          <span>0{index + 1}</span>
+                          <strong>{conclusion.topic}</strong>
+                          <p>{conclusion.text}</p>
+                        </li>
+                      ))}
+                    </ol>
                   </section>
 
-                  <aside className="side-column">
-                    <section className="priority-panel">
-                      <p className="eyebrow">MY PRIORITIES</p>
-                      <h2>내 관심 축</h2>
-                      <dl>
-                        <div><dt>최우선 종목</dt><dd>삼성전자·SK하이닉스</dd></div>
-                        <div><dt>글로벌 흐름</dt><dd>AI·HBM·엔비디아·TSMC</dd></div>
-                        <div><dt>주거 판단</dt><dd>부동산 정책·대출·집값</dd></div>
-                        <div><dt>관심 지역</dt><dd>구리·남양주·하남·왕숙</dd></div>
-                      </dl>
-                    </section>
-
-                    <details className="reference-news" open>
-                      <summary>
-                        <span><small>REFERENCE</small>참고 뉴스</span>
-                        <span>{referenceIssues.length}</span>
-                      </summary>
+                  <div className="content-grid">
+                    <section className="main-column" aria-labelledby="must-read-title">
+                      <div className="section-heading">
+                        <div><p className="eyebrow">MUST READ</p><h2 id="must-read-title">오늘 꼭 볼 뉴스</h2></div>
+                        <span>{activeKeyword} · 중요도순 · {coreIssues.length}개</span>
+                      </div>
                       <div className="issue-stack">
-                        {referenceIssues.map((issue) => (
+                        {coreIssues.length ? coreIssues.map((issue) => (
                           <ArticleCard
                             key={issue.id}
                             issue={issue}
                             preference={preferences[issue.id]}
                             onPreference={updatePreference}
-                            compact
                           />
-                        ))}
+                        )) : <p className="empty-state">이 키워드에 해당하는 핵심 뉴스가 없습니다.</p>}
                       </div>
-                    </details>
-                  </aside>
-                </div>
-                  </>
-                )}
+
+                      <section id="updates" className="updates" aria-labelledby="updates-title">
+                        <div className="section-heading">
+                          <div><p className="eyebrow">MANUAL UPDATE</p><h2 id="updates-title">새로 추가된 주요 뉴스</h2></div>
+                          <span>{updates.length ? `${updates.length}개 추가` : "아침판과 분리"}</span>
+                        </div>
+                        {updates.length ? (
+                          <div className="issue-stack">
+                            {updates.map((issue) => (
+                              <ArticleCard
+                                key={issue.id}
+                                issue={issue}
+                                preference={preferences[issue.id]}
+                                onPreference={updatePreference}
+                              />
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="update-placeholder">
+                            아침 브리핑은 그대로 유지됩니다. 상단의 ‘최신 뉴스 반영하기’를 누르면 이후 이슈만 여기에 추가됩니다.
+                          </div>
+                        )}
+                      </section>
+                    </section>
+
+                    <aside className="side-column">
+                      <section className="priority-panel">
+                        <p className="eyebrow">MY PRIORITIES</p>
+                        <h2>내 관심 축</h2>
+                        <dl>
+                          <div><dt>최우선 종목</dt><dd>삼성전자·SK하이닉스</dd></div>
+                          <div><dt>글로벌 흐름</dt><dd>AI·HBM·엔비디아·TSMC</dd></div>
+                          <div><dt>주거 판단</dt><dd>부동산 정책·대출·집값</dd></div>
+                          <div><dt>관심 지역</dt><dd>구리·남양주·하남·왕숙</dd></div>
+                        </dl>
+                      </section>
+
+                      <details className="reference-news" open>
+                        <summary>
+                          <span><small>REFERENCE</small>참고 뉴스</span>
+                          <span>{referenceIssues.length}</span>
+                        </summary>
+                        <div className="issue-stack">
+                          {referenceIssues.map((issue) => (
+                            <ArticleCard
+                              key={issue.id}
+                              issue={issue}
+                              preference={preferences[issue.id]}
+                              onPreference={updatePreference}
+                              compact
+                            />
+                          ))}
+                        </div>
+                      </details>
+                    </aside>
+                  </div>
+                </>
+              )}
             </section>
             <section id="archive-panel" role="tabpanel" aria-labelledby="archive-tab" hidden={activeView !== "archive"}>
-                <div className="section-heading">
-                  <div>
-                    <p className="eyebrow">SAMPLE ARCHIVE</p>
-                    <h2 ref={archiveHeadingRef} tabIndex={-1}>월별 아카이브</h2>
-                  </div>
-                  <span>{formatArchiveMonth(activeMonth)} · {activeKeyword} · {visibleArchive.length}개 기사</span>
+              <div className="section-heading">
+                <div>
+                  <p className="eyebrow">SAMPLE ARCHIVE</p>
+                  <h2 ref={archiveHeadingRef} tabIndex={-1}>월별 아카이브</h2>
                 </div>
-                <p className="archive-disclaimer">아카이브는 화면 흐름을 보여 주기 위한 샘플 데이터입니다.</p>
-                <div className="archive-months month-tabs" role="group" aria-label="아카이브 월 선택">
-                  {archiveMonths.map((month) => (
-                    <button
-                      key={month}
-                      type="button"
-                      aria-pressed={activeMonth === month}
-                      onClick={() => selectMonth(month)}
-                    >
-                      {formatArchiveMonth(month)}
-                    </button>
+                <span>{formatArchiveMonth(activeMonth)} · {activeKeyword} · {visibleArchive.length}개 기사</span>
+              </div>
+              <p className="archive-disclaimer">아카이브는 화면 흐름을 보여 주기 위한 샘플 데이터입니다.</p>
+              <div className="archive-months month-tabs" role="group" aria-label="아카이브 월 선택">
+                {archiveMonths.map((month) => (
+                  <button
+                    key={month}
+                    type="button"
+                    aria-pressed={activeMonth === month}
+                    onClick={() => selectMonth(month)}
+                  >
+                    {formatArchiveMonth(month)}
+                  </button>
+                ))}
+              </div>
+              {activeView === "archive" && visibleArchive.length ? (
+                <div className="issue-stack archive-issues">
+                  {visibleArchive.map((issue) => (
+                    <ArticleCard
+                      key={issue.id}
+                      issue={issue}
+                      preference={preferences[issue.id]}
+                      onPreference={updatePreference}
+                    />
                   ))}
                 </div>
-                {activeView === "archive" && visibleArchive.length ? (
-                  <div className="issue-stack archive-issues">
-                    {visibleArchive.map((issue) => (
-                      <ArticleCard
-                        key={issue.id}
-                        issue={issue}
-                        preference={preferences[issue.id]}
-                        onPreference={updatePreference}
-                      />
-                    ))}
-                  </div>
-                ) : activeView === "archive" ? (
-                  <div className="empty-state">
-                    <p>이 월에는 선택한 키워드의 기사가 없습니다.</p>
-                    <button type="button" onClick={() => setActiveKeyword("전체")}>전체 기사 보기</button>
-                  </div>
-                ) : null}
+              ) : activeView === "archive" ? (
+                <div className="empty-state">
+                  <p>이 월에는 선택한 키워드의 기사가 없습니다.</p>
+                  <button type="button" onClick={() => setActiveKeyword("전체")}>전체 기사 보기</button>
+                </div>
+              ) : null}
             </section>
           </div>
         </div>
